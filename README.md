@@ -3,9 +3,6 @@ forgot the question name of a particular website. No worries, go to our website 
 
 #### Website Link - https://codesearch-by-oxone.netlify.app/
 
-## Developer: Anuj Verma
-## Institution : IIT Kharagpur
-
 # Search Engine
 
 A search engine that allows users to search for questions based on their query. The search engine consists of three main stages: web scraping, TF-IDF algorithm, and a Node.js and React web application.
