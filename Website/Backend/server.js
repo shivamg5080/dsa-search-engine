@@ -1,47 +1,62 @@
-const express = require("express");
-const { spawn } = require("child_process");
-const cors = require("cors");
+// Import required modules
+const express = require("express");        // Express framework to create server and APIs
+const { spawn } = require("child_process"); // Used to run Python scripts from Node.js
+const cors = require("cors");              // Middleware to allow requests from other origins (e.g., frontend on another port)
 
-const app = express();
+const app = express(); // Initialize the Express app
 
-app.use(express.json());
-app.use(cors());
+// Middleware setup
+app.use(express.json()); // Parse incoming JSON requests
+app.use(cors());         // Enable Cross-Origin Resource Sharing
 
-// API endpoint for handling the search request
+// ========================
+// 🔍 Search API Endpoint
+// ========================
 app.post("/api/search", (req, res) => {
-  const query = req.body.query; // Get the query from the request body
+  const query = req.body.query; // Get the 'query' value from the request body
 
-  // Execute the Python script with the provided query
+  // Run the Python script and pass the query as a command-line argument
   const pythonProcess = spawn("python", ["../../TF-IDF/query.py", query]);
 
-  let outputData = "";
+  let outputData = ""; // To collect data coming from the Python script
 
+  // When Python script sends data back (stdout), store it
   pythonProcess.stdout.on("data", (data) => {
-    outputData += data.toString();
+    outputData += data.toString(); // Convert buffer to string and add to outputData
   });
 
-  // Handle the completion of the Python script execution
+  // When Python script finishes execution
   pythonProcess.on("close", (code) => {
     if (code === 0) {
+      // Script finished successfully
       try {
-        const resultList = JSON.parse(outputData);
-        res.json(resultList);
+        const resultList = JSON.parse(outputData); // Try parsing output as JSON
+        res.json(resultList);                      // Send the parsed result back to frontend
       } catch (error) {
+        // If parsing fails
         console.error("Error parsing JSON:", error);
         res.status(500).json({ error: "Error parsing JSON" });
       }
     } else {
+      // If script exited with error
       console.error("Python script execution failed");
       res.status(500).json({ error: "Python script execution failed" });
     }
   });
 });
 
-// show success message on / route
+// ===========================
+// ✅ Root Route (Test Route)
+// ===========================
 app.get("/", (req, res) => {
-  res.send("Server is running successfully");
+  res.send("Server is running successfully"); // Simple message to check if server is up
 });
 
-app.listen(5000 || process.env.PORT, () => {
+// =========================
+// 🔊 Start the Server
+// =========================
+app.listen(process.env.PORT || 5000, () => {
+  // Use PORT from environment if available, else use 5000
   console.log("Backend server is running on http://localhost:5000");
 });
+
